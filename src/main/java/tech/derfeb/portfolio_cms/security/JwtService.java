@@ -30,13 +30,13 @@ public class JwtService {
         return new BCryptPasswordEncoder();
     }
 
-    public String generateToken(String username, String userId) {
+    public String generateToken(String userId, String username) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
+        claims.put("username", username);
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(username)
+                .setSubject(userId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SECRET_KEY)
@@ -51,11 +51,11 @@ public class JwtService {
                 .getBody();
     }
 
-    public String extractUsername(String token) {
+    public String extractUserId(String token) {
         return extractAllClaims(token).getSubject();
     }
 
-    public String extractUserId(String token) {
-        return extractAllClaims(token).get("userId", String.class);
+    public String extractUsername(String token) {
+        return extractAllClaims(token).get("username", String.class);
     }
 }
