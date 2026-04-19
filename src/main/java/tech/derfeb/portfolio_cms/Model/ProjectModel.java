@@ -39,6 +39,11 @@ public class ProjectModel {
     @JoinColumn(name = "project_id")
     private List<PartnerModel> partners = new ArrayList<>();
 
+    @ElementCollection
+    @CollectionTable(name = "project_tech_stack", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "technology")
+    private List<String> techStack = new ArrayList<>();
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
