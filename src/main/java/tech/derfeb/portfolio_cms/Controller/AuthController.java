@@ -21,51 +21,54 @@ import tech.derfeb.portfolio_cms.security.JwtService;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private UserRepository userRepository;
+        @Autowired
+        private UserRepository userRepository;
 
-    @Autowired
-    private JwtService jwtService;
+        @Autowired
+        private JwtService jwtService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+        @Autowired
+        private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequestDto request) {
-        return userRepository.findByUsername(request.getUsername())
-                .map(user -> {
-                    if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                        String token = jwtService.generateToken(user.getUsername());
+        @PostMapping("/login")
+        public ResponseEntity<?> login(@RequestBody AuthRequestDto request) {
+                return userRepository.findByUsername(request.getUsername())
+                                .map(user -> {
+                                        if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                                                String token = jwtService.generateToken(user.getId(),
+                                                                user.getUsername());
 
-                        ResponseCookie cookie = ResponseCookie.from("jwt_token", token)
+                                                ResponseCookie cookie = ResponseCookie.from("jwt_token", token)
+                                                                .httpOnly(true)
+                                                                .secure(false)
+                                                                .path("/")
+                                                                .maxAge(60 * 60 * 24)
+                                                                .sameSite("Lax")
+                                                                .build();
+
+                                                return ResponseEntity.ok()
+                                                                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                                                                .body(Map.of("message", "Login successful"));
+                                        }
+
+                                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                                        .body(Map.of("error", "Invalid credentials"));
+                                })
+                                .orElseGet(
+                                                () -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                                                .body(Map.of("error", "User not found")));
+        }
+
+        @PostMapping("/logout")
+        public ResponseEntity<?> logout() {
+                ResponseCookie cookie = ResponseCookie.from("jwt_token", "")
                                 .httpOnly(true)
-                                .secure(false)
                                 .path("/")
-                                .maxAge(60 * 60 * 24)
-                                .sameSite("Lax")
+                                .maxAge(0)
                                 .build();
 
-                        return ResponseEntity.ok()
+                return ResponseEntity.ok()
                                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                                .body(Map.of("message", "Login successful"));
-                    }
-
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid credentials"));
-                })
-                .orElseGet(
-                        () -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not found")));
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
-        ResponseCookie cookie = ResponseCookie.from("jwt_token", "")
-                .httpOnly(true)
-                .path("/")
-                .maxAge(0)
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of("message", "Logout successful"));
-    }
+                                .body(Map.of("message", "Logout successful"));
+        }
 }
