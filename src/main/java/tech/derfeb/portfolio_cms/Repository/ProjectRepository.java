@@ -6,5 +6,5 @@ import tech.derfeb.portfolio_cms.Model.ProjectModel;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<ProjectModel, String> {
-    // String because your ID is a UUID String
+
 }
