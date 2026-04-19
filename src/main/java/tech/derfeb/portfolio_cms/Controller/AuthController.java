@@ -35,8 +35,8 @@ public class AuthController {
                 return userRepository.findByUsername(request.getUsername())
                                 .map(user -> {
                                         if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                                                String token = jwtService.generateToken(user.getId(),
-                                                                user.getUsername());
+                                                String token = jwtService.generateToken(user.getUsername(),
+                                                                user.getId());
 
                                                 ResponseCookie cookie = ResponseCookie.from("jwt_token", token)
                                                                 .httpOnly(true)
