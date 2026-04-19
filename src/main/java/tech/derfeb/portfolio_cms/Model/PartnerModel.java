@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-class PartnerModel {
+public class PartnerModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
