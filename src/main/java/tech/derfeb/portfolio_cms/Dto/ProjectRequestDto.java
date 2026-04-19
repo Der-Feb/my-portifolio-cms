@@ -10,5 +10,6 @@ public class ProjectRequestDto {
     private String reviewImage;
     private String githubLink;
     private String liveLink;
+    private List<String> techStack;
     private List<PartnerRequestDto> partners;
 }
