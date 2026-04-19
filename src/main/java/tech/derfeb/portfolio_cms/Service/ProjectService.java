@@ -12,7 +12,6 @@ import tech.derfeb.portfolio_cms.Dto.PartnerRequestDto;
 import tech.derfeb.portfolio_cms.Dto.ProjectRequestDto;
 import tech.derfeb.portfolio_cms.Model.PartnerModel;
 import tech.derfeb.portfolio_cms.Model.ProjectModel;
-import tech.derfeb.portfolio_cms.Repository.PartnerRepository;
 import tech.derfeb.portfolio_cms.Repository.ProjectRepository;
 
 @Service
@@ -20,9 +19,6 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
-
-    @Autowired
-    private PartnerRepository partnerRepository;
 
     // ── Project CRUD ──────────────────────────────────────────────────────────
 
@@ -33,6 +29,7 @@ public class ProjectService {
         project.setReviewImage(dto.getReviewImage());
         project.setGithubLink(dto.getGithubLink());
         project.setLiveLink(dto.getLiveLink());
+        project.setTechStack(dto.getTechStack());
 
         if (dto.getPartners() != null && !dto.getPartners().isEmpty()) {
             List<PartnerModel> partners = new ArrayList<>();
@@ -77,6 +74,9 @@ public class ProjectService {
         }
         if (dto.getLiveLink() != null && !dto.getLiveLink().isBlank()) {
             project.setLiveLink(dto.getLiveLink());
+        }
+        if (dto.getTechStack() != null) {
+            project.setTechStack(dto.getTechStack());
         }
 
         return projectRepository.save(project);
