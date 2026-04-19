@@ -44,18 +44,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                String username = jwtService.extractUsername(token);
+                String userId = jwtService.extractUserId(token);
 
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    var userOpt = userRepository.findByUsername(username);
+                if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    var userOpt = userRepository.findById(userId);
 
                     if (userOpt.isPresent()) {
-                        List<SimpleGrantedAuthority> authorities = userOpt.get().getRoles().stream()
+                        var user = userOpt.get();
+                        
+                        List<SimpleGrantedAuthority> authorities = user.getRoles().stream()
                                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                                 .collect(Collectors.toList());
 
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                                username,
+                                user.getUsername(),
                                 null,
                                 authorities);
 
