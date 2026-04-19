@@ -47,19 +47,24 @@ public class DataInitializer {
     }
 
     private void createAdminUserIfNotFound(UserRepository userRepository, RoleRepository roleRepository) {
-        if (userRepository.findByUsername("admin").isEmpty()) {
-            // Find the admin role we created in the other method
-            RoleModel adminRole = roleRepository.findByName("ROLE_ADMIN")
-                    .orElseThrow(() -> new RuntimeException("Error: Role not found."));
+        RoleModel adminRole = roleRepository.findByName("ROLE_ADMIN")
+                .orElseGet(() -> {
+                    RoleModel newRole = new RoleModel();
+                    newRole.setName("ROLE_ADMIN");
+                    newRole.setDescription("Full access to manage projects and users");
+                    return roleRepository.save(newRole);
+                });
 
+        if (userRepository.findByUsername("admin").isEmpty()) {
             UserModel admin = new UserModel();
             admin.setUsername("admin");
-            // Encrypting the password
-            admin.setPassword(new BCryptPasswordEncoder().encode("your_secure_password"));
+            admin.setPassword(new BCryptPasswordEncoder().encode("password@123"));
             admin.setRoles(Set.of(adminRole));
 
             userRepository.save(admin);
-            System.out.println("Admin user 'admin' initialized successfully!");
+            System.out.println("Admin user 'admin' created because it didn't exist.");
+        } else {
+            System.out.println("Admin user already exists. Skipping initialization.");
         }
     }
 }
