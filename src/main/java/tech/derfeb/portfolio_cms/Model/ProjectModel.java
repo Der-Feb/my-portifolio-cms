@@ -36,22 +36,3 @@ public class ProjectModel {
     @JoinColumn(name = "project_id")
     private List<PartnerModel> partners = new ArrayList<>();
 }
-
-@Entity
-@Table(name = "partners")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class PartnerModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
-    private String name;
-
-    private String imagePreview;
-
-    @ElementCollection
-    @CollectionTable(name = "partner_links", joinColumns = @JoinColumn(name = "project_id"))
-    private List<String> links = new ArrayList<>();
-}
