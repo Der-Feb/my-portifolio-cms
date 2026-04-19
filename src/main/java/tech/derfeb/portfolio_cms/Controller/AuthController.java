@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import tech.derfeb.portfolio_cms.Dto.AuthRequestDto;
+import tech.derfeb.portfolio_cms.Dto.UserResponseDto;
 import tech.derfeb.portfolio_cms.Repository.UserRepository;
 import tech.derfeb.portfolio_cms.security.JwtService;
 
@@ -35,8 +36,8 @@ public class AuthController {
                 return userRepository.findByUsername(request.getUsername())
                                 .map(user -> {
                                         if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                                                String token = jwtService.generateToken(user.getUsername(),
-                                                                user.getId());
+                                                String token = jwtService.generateToken(user.getId(),
+                                                                user.getUsername());
 
                                                 ResponseCookie cookie = ResponseCookie.from("jwt_token", token)
                                                                 .httpOnly(true)
@@ -48,7 +49,10 @@ public class AuthController {
 
                                                 return ResponseEntity.ok()
                                                                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                                                                .body(Map.of("message", "Login successful"));
+                                                                .body(Map.of(
+                                                                        "message", "Login successful",
+                                                                        "user", UserResponseDto.fromUser(user)
+                                                                ));
                                         }
 
                                         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
