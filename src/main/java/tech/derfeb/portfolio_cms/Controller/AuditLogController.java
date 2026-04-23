@@ -10,6 +10,9 @@ import tech.derfeb.portfolio_cms.Service.AuditLogService;
 
 import java.util.List;
 
+/**
+ * Controller for retrieving system audit logs.
+ */
 @RestController
 @RequestMapping("/api/audit-logs")
 public class AuditLogController {
