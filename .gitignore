@@ -36,3 +36,6 @@ portfolio-cms.iml
 
 ### Environment variables
 *.env
+
+### docs
+docs/
