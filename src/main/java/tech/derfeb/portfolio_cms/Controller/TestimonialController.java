@@ -10,6 +10,9 @@ import tech.derfeb.portfolio_cms.Service.TestimonialService;
 
 import java.util.List;
 
+/**
+ * Controller for managing customer testimonials.
+ */
 @RestController
 @RequestMapping("/api/testimonials")
 public class TestimonialController {
