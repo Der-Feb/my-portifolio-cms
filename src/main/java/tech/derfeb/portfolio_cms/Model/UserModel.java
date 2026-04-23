@@ -25,7 +25,7 @@ public class UserModel {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean availableForWork = false;
 
     @ManyToMany(fetch = FetchType.EAGER)
