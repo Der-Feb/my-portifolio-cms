@@ -33,7 +33,7 @@ public class DataInitializer {
             adminRole.setName("ROLE_ADMIN");
             adminRole.setDescription("Full access to manage projects and users");
             roleRepository.save(adminRole);
-            System.out.println("✅ ROLE_ADMIN created.");
+            System.out.println("OLE_ADMIN created.");
         }
 
         // Create User Role
@@ -42,7 +42,7 @@ public class DataInitializer {
             userRole.setName("ROLE_USER");
             userRole.setDescription("Limited access to view or interact with content");
             roleRepository.save(userRole);
-            System.out.println("✅ ROLE_USER created.");
+            System.out.println("ROLE_USER created.");
         }
     }
 
