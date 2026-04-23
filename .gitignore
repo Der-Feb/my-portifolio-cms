@@ -30,7 +30,6 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
 
 portfolio-cms.iml
 
@@ -39,3 +38,5 @@ portfolio-cms.iml
 
 ### docs
 docs/
+config.bat
+node_modules
