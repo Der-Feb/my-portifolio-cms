@@ -6,6 +6,7 @@ import tech.derfeb.portfolio_cms.Model.AuditLogModel;
 import tech.derfeb.portfolio_cms.Repository.AuditLogRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AuditLogService {
@@ -25,5 +26,9 @@ public class AuditLogService {
 
     public List<AuditLogModel> getAllLogs() {
         return auditLogRepository.findAll();
+    }
+
+    public Optional<AuditLogModel> getLogById(String id) {
+        return auditLogRepository.findById(id);
     }
 }
