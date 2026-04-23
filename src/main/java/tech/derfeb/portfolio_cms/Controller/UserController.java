@@ -16,10 +16,6 @@ import tech.derfeb.portfolio_cms.Model.UserModel;
 import tech.derfeb.portfolio_cms.Repository.RoleRepository;
 import tech.derfeb.portfolio_cms.Repository.UserRepository;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -67,8 +63,8 @@ public class UserController {
 
         // Roles cannot be changed via /me endpoint - security restriction
         if (updateDto.getRoles() != null && !updateDto.getRoles().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
-                "Cannot change roles via this endpoint. Contact an administrator.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Cannot change roles via this endpoint. Contact an administrator.");
         }
 
         userRepository.save(user);
@@ -90,16 +86,16 @@ public class UserController {
                 .anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
 
         if (!isAdmin) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
-                "You don't have permission to change roles");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You don't have permission to change roles");
         }
 
         UserModel targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         RoleModel targetRole = roleRepository.findByName(roleDto.getRoleName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
-                    "Role not found: " + roleDto.getRoleName()));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Role not found: " + roleDto.getRoleName()));
 
         if (roleDto.getGrant()) {
             targetUser.getRoles().add(targetRole);
