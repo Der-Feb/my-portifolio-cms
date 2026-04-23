@@ -1,13 +1,14 @@
 package tech.derfeb.portfolio_cms.Service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.apache.commons.validator.routines.EmailValidator;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 import tech.derfeb.portfolio_cms.Exception.InvalidInputException;
-
-import java.util.regex.Pattern;
 
 @Service
 public class EmailService {
@@ -15,9 +16,18 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    // Injected from application.properties / .env
+    @Value("${spring.mail.to}")
+    private String adminEmail;
+
+    @Value("${app.mail.from}")
+    private String appNoReplyEmail;
+
+    /**
+     * Generates the Cyberpunk-styled HTML template for the email.
+     */
     public String contactHtml(String name, String email, String message) {
         return "<div style=\"background-color: #0b0d17; color: #ffffff; padding: 40px; font-family: 'Helvetica', Arial, sans-serif; max-width: 600px; border: 2px solid #f38d31;\">" +
-                // Header section
                 "<div style=\"margin-bottom: 30px;\">" +
                 "<div style=\"color: #f38d31; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 5px;\">" +
                 "◆ SECURE TRANSMISSION RECEIVED" +
@@ -27,7 +37,6 @@ public class EmailService {
                 "</h1>" +
                 "</div>" +
 
-                // Data Table
                 "<div style=\"background-color: #121521; padding: 20px; border: 1px solid #1a1e2e; margin-bottom: 30px;\">" +
                 "<div style=\"margin-bottom: 15px;\">" +
                 "<label style=\"color: #f38d31; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 5px;\">Identifier (Name)</label>" +
@@ -45,20 +54,15 @@ public class EmailService {
                 "</div>" +
                 "</div>" +
 
-                // Action Button
-                // "<div style=\"text-align: center;\">" +
-                // "<a href=\"mailto:" + email + "\" style=\"background-color: #f38d31; color: #000000; text-decoration: none; padding: 15px 40px; font-weight: bold; text-transform: uppercase; font-size: 14px; display: inline-block; letter-spacing: 2px;\">" +
-                // "REPLY TO TRANSMISSION ⚡" +
-                // "</a>" +
-                // "</div>" +
-
-                // Footer
                 "<div style=\"margin-top: 40px; padding-top: 20px; border-top: 1px solid #1a1e2e; font-size: 10px; color: #444; letter-spacing: 2px; text-transform: uppercase; text-align: center;\">" +
                 "BUGINGO ERIC DERICK — PORTFOLIO VOL. I" +
                 "</div>" +
                 "</div>";
     }
 
+    /**
+     * Validates email structure using Apache Commons Validator.
+     */
     public void verifyEmail(String email) throws InvalidInputException {
         boolean isValid = EmailValidator.getInstance().isValid(email);
 
@@ -70,7 +74,49 @@ public class EmailService {
         }
     }
 
-    public void sendEmail(String to, String from, String subject, String text, String html) {
+    /**
+     * Core sending logic using MimeMessage.
+     * Note: 'from' is your app email, 'replyTo' is the user's email.
+     */
+    public void sendEmail(String to, String replyTo, String subject, String text, String html) {
+        try {
+            // Validate addresses before sending
+            verifyEmail(replyTo);
+            verifyEmail(to);
 
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom(appNoReplyEmail);
+            helper.setTo(to);
+            helper.setReplyTo(replyTo);
+            helper.setSubject(subject);
+
+            // If text is provided, it acts as the fallback for non-HTML clients
+            if (text != null) {
+                helper.setText(text, html);
+            } else {
+                helper.setText(html, true);
+            }
+
+            mailSender.send(mimeMessage);
+
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email", e);
+        } catch (InvalidInputException e) {
+            // Log and rethrow or handle as 400 Bad Request
+            throw new RuntimeException("Email validation failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Public method to be called from your Controller.
+     */
+    public void sendContactMail(String userEmail, String name, String msg) {
+        String htmlBody = contactHtml(name, userEmail, msg);
+        String subject = "PORTFOLIO TRANSMISSION: " + name.toUpperCase();
+
+        // We send TO our admin email, and set REPLY-TO to the user
+        sendEmail(adminEmail, userEmail, subject, "New message from " + name + ": " + msg, htmlBody);
     }
 }
