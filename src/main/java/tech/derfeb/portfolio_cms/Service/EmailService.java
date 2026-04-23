@@ -2,13 +2,11 @@ package tech.derfeb.portfolio_cms.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import tech.derfeb.portfolio_cms.Exception.InvalidInputException;
 
 @Service
 public class EmailService {
@@ -61,29 +59,11 @@ public class EmailService {
     }
 
     /**
-     * Validates email structure using Apache Commons Validator.
-     */
-    public void verifyEmail(String email) throws InvalidInputException {
-        boolean isValid = EmailValidator.getInstance().isValid(email);
-
-        if (!isValid) {
-            throw new InvalidInputException(
-                    InvalidInputException.InputTypes.Email,
-                    "Invalid email format: " + email
-            );
-        }
-    }
-
-    /**
      * Core sending logic using MimeMessage.
      * Note: 'from' is your app email, 'replyTo' is the user's email.
      */
     public void sendEmail(String to, String replyTo, String subject, String text, String html) {
         try {
-            // Validate addresses before sending
-            verifyEmail(replyTo);
-            verifyEmail(to);
-
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
@@ -103,9 +83,6 @@ public class EmailService {
 
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email", e);
-        } catch (InvalidInputException e) {
-            // Log and rethrow or handle as 400 Bad Request
-            throw new RuntimeException("Email validation failed: " + e.getMessage());
         }
     }
 
